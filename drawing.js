@@ -17,7 +17,7 @@ const getDrawObject = () => {
     'stroke-width': 2,
     'fill-opacity': 0,
   };
-
+dd
   switch (shape) {
     case 'mouse paint':
       return draw.polyline().attr(option);
