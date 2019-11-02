@@ -2,6 +2,10 @@ const draw = SVG('drawing');
 const shapes = [];
 let index = 0;
 let shape;
+let polyline = [];
+let polytime = [];
+
+let mousedown=false;
 
 const getDrawObject = function() {
   shape = document.getElementById('shape').value;
@@ -24,22 +28,41 @@ const getDrawObject = function() {
 
 
 draw.on('mousedown', function(event) {
-  const shape = getDrawObject();
+  mousedown=true;
+  /*const shape = getDrawObject();
   shapes[index] = shape;
-  shape.draw(event);
+  shape.draw(event);*/
+  polyline[index] = [];
+  polyline[index].push([event.offsetX, event.offsetY]);
+  let date = new Date();
+  polytime[index] = date.getTime();
 });
 draw.on('mousemove', event => {
-  if (shape === 'mouse paint' && shapes[index]) {
-    shapes[index].draw('point', event);
+  // if (shape === 'mouse paint' && shapes[index]) {
+  //   shapes[index].draw('point', event);
+  // }
+  //if (Math.random()>0.1) return
+  let date = new Date();
+  let ms = date.getTime();
+  if (ms-polytime[index]<300) return
+  else polytime[index] = ms;
+  if (mousedown && polyline[index]) {
+    polyline[index].push([event.offsetX, event.offsetY]);
   }
 })
 draw.on('mouseup', event => {
-  if (shape === 'mouse paint') {
-    shapes[index].draw('stop', event);
-  } else {
-    shapes[index].draw(event);
-  }
+  mousedown=false;
+  polyline[index].push([event.offsetX, event.offsetY]);
+  // if (shape === 'mouse paint') {
+  //   shapes[index].draw('stop', event);
+  // } else {
+  //   shapes[index].draw(event);
+  // }
+  let krivaya = svgPolylines(polyline[index]);
   index++;
+  console.log(polyline);
+  console.log(krivaya);
+  document.getElementById("SvgjsSvg1001").innerHTML = krivaya;
 })
 
 // This is custom extension of line, polyline, polygon which doesn't draw the circle on the line. 
