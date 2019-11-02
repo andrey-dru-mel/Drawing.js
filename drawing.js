@@ -29,8 +29,6 @@ draw.on('mousedown', function(event) {
   shape.draw(event);
 });
 draw.on('mousemove', event => {
-  let rand = Math.random();
-  if (rand>0.2) return;
   if (shape === 'mouse paint' && shapes[index]) {
     shapes[index].draw('point', event);
   }
