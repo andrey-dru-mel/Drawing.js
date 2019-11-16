@@ -81,12 +81,12 @@ const svgPath = (points, command) => {
         ? `M ${point[0]},${point[1]}`
         : `${acc} ${command(point, i, a)}`
         , '');
-    return `<path d="${d}" fill="none" stroke="grey" />`
+    return `<path d="${d}" fill="none" stroke="purple" />`
 }
 
 const svg = document.querySelector('.svg');
 
-svg.innerHTML = svgPath(points, bezierCommand);
+//svg.innerHTML = svgPath(points, bezierCommand);
 
 const svgPolylines = function(points){
     return svgPath(points, bezierCommand);

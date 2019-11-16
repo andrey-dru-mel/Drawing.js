@@ -137,4 +137,4 @@
             this.snapToGrid(c), this.el.attr(c)
         }
     })
-}).call(this);
+}).call(window);

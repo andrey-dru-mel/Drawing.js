@@ -7,26 +7,20 @@
     <script src="SVG.draw.js"></script>
 </head>
 <body>
-<div id="drawing" style="height: 400px"></div>
-Shape:
-<select id="shape">
-    <option value="mouse paint">Mouse paint</option>
-    <option value="rect">Recangle</option>
-    <option value="ellipse">Circle</option>
-</select> Color:
-<select id="color">
-    <option value="#ff0099">Pink</option>
-    <option value="#f3f313">Yellow</option>
-    <option value="#0dd5fc">Blue</option>
-    <option value="#83f52c">Green</option>
-</select>
-
-<svg viewBox="0 0 200 50" version="1.1" xmlns="http://www.w3.org/2000/svg" class="svg">
-</svg>
-
-<script src="smooth_line.js"></script>
+----------------
+<div id="drawing">
+</div>
 
 <script src='drawing.js'>
 </script>
+=====================<br/>
+
+<select id="shape">
+    <option value="polyline">Кривая</option>
+    <option value="line">Отрезок</option>
+</select>
+
+<script src="smooth_line.js"></script>
+
 </body>
 </html>
