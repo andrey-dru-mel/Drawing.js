@@ -3,6 +3,7 @@ const shapes = [];
 let index = 0;
 let shape;
 let polyline = [];
+let vpolyline = [];
 let polytime = [];
 
 let mousedown=false;
@@ -32,6 +33,8 @@ draw.on('mousedown', function(event) {
   /*const shape = getDrawObject();
   shapes[index] = shape;
   shape.draw(event);*/
+  vpolyline = [];
+  vpolyline.push([event.offsetX, event.offsetY]);
   polyline[index] = [];
   polyline[index].push([event.offsetX, event.offsetY]);
   let date = new Date();
@@ -42,17 +45,20 @@ draw.on('mousemove', event => {
   //   shapes[index].draw('point', event);
   // }
   //if (Math.random()>0.1) return
-  if (shape === 'polyline' && mousedown && polyline[index]) {
+  if (shape === 'polyline' && mousedown && vpolyline) {
     let date = new Date();
     let ms = date.getTime();
-    if ((ms-polytime[index])*(Math.pow((event.offsetX-polyline[index][polyline[index].length-1][0]), 2) +
-        Math.pow((event.offsetY-polyline[index][polyline[index].length-1][1]), 2)) <300000) return;
-    else polytime[index]= ms;
 
-    polyline[index].push([event.offsetX, event.offsetY]);
+    vpolyline.push([event.offsetX, event.offsetY]);
 
-    let krivaya = svgPolylines(polyline[index]);
+    let krivaya = svgPolylines(vpolyline);
+
     document.getElementById("SvgjsSvg1001").innerHTML = krivaya;
+
+    if ((ms-polytime[index])*(Math.pow((event.offsetX-polyline[index][polyline[index].length-1][0]), 2) +
+        Math.pow((event.offsetY-polyline[index][polyline[index].length-1][1]), 2)) <10000) return;
+    else polytime[index]= ms;
+    polyline[index].push([event.offsetX, event.offsetY]);
   }
   else if (shape === 'line' && mousedown && polyline[index]) {
     polyline[index][1] = [event.offsetX, event.offsetY];
@@ -62,15 +68,18 @@ draw.on('mousemove', event => {
 })
 draw.on('mouseup', event => {
   mousedown=false;
-  console.log(polyline);
+  console.log(shape);
   // if (shape === 'mouse paint') {
   //   shapes[index].draw('stop', event);
   // } else {
   //   shapes[index].draw(event);
   // }
-  let krivaya = svgPolylines(polyline[index]);
+  let krivaya = svgPolylines([[0][0]]);
+  for (var i = 0; i<=index; i++) {
+    krivaya += svgPolylines(polyline[i]);
+    document.getElementById("SvgjsSvg1001").innerHTML = krivaya;
+  }
   index++;
-  document.getElementById("SvgjsSvg1001").innerHTML = krivaya;
 });
 
 // This is custom extension of line, polyline, polygon which doesn't draw the circle on the line. 
