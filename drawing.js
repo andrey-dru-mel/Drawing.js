@@ -83,6 +83,11 @@ draw.on('mouseup', event => {
   for (let i = 0; i<=index; i++) {
     krivaya += svgPolylines(polyline[i]);
   }
+  let data = {
+    uuid: window.uuid,
+    line: polyline[index]
+  }
+  window.socket.send(JSON.stringify(data))
   document.getElementById("SvgjsSvg1001").innerHTML = krivaya;
   index++;
 });
