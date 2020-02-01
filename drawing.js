@@ -5,8 +5,18 @@ let shape;
 let polyline = [];
 let vpolyline = [];
 let polytime = [];
+const tmpLineId = window.uuid + "tmpline";
+const tmpPolylineId = window.uuid + "tmpline";
 
 let mousedown=false;
+
+function createElementFromHTML(htmlString) {
+    let div = document.createElement('div');
+    div.innerHTML = htmlString.trim();
+
+    // Change this to div.childNodes to support multiple top-level nodes
+    return div.firstChild;
+}
 
 const getDrawObject = function() {
   shape = document.getElementById('shape').value;
@@ -50,26 +60,22 @@ draw.on('mousemove', event => {
     let ms = date.getTime();
 
     vpolyline.push([event.offsetX, event.offsetY]);
+      if (document.getElementById(tmpPolylineId)){document.getElementById(tmpPolylineId).remove();}
+    let krivaya = svgPolylines2(vpolyline, 'blue');
+      krivaya.setAttribute("id", tmpPolylineId);
+      document.getElementById("SvgjsSvg1001").appendChild(krivaya);
 
-    let krivaya = svgPolylines([[0][0]]);
-    for (let i = 0; i<index; i++) {
-      krivaya += svgPolylines(polyline[i]);
-    }
-    krivaya+=svgPolylines(vpolyline);
-    document.getElementById("SvgjsSvg1001").innerHTML = krivaya;
-
-    if ((ms-polytime[index])*(Math.pow((event.offsetX-polyline[index][polyline[index].length-1][0]), 2) +
-        Math.pow((event.offsetY-polyline[index][polyline[index].length-1][1]), 2)) <10000) return;
+    if ((ms-polytime[index])*Math.sqrt((Math.pow((event.offsetX-polyline[index][polyline[index].length-1][0]), 2) +
+        Math.pow((event.offsetY-polyline[index][polyline[index].length-1][1]), 2))) <3000) return;
     else polytime[index]= ms;
     polyline[index].push([event.offsetX, event.offsetY]);
   }
   else if (shape === 'line' && mousedown && polyline[index]) {
     polyline[index][1] = [event.offsetX, event.offsetY];
-    let krivaya = svgPolylines([[0][0]]);
-    for (let i = 0; i<=index; i++) {
-      krivaya += svgPolylines(polyline[i]);
-    }
-    document.getElementById("SvgjsSvg1001").innerHTML = krivaya;
+    if (document.getElementById(tmpLineId)){document.getElementById(tmpLineId).remove();}
+    let krivaya = svgPolylines2(polyline[index], 'blue');
+    krivaya.setAttribute("id", tmpLineId);
+    document.getElementById("SvgjsSvg1001").appendChild(krivaya);
   }
 })
 draw.on('mouseup', event => {
@@ -79,16 +85,16 @@ draw.on('mouseup', event => {
   // } else {
   //   shapes[index].draw(event);
   // }
-  let krivaya = svgPolylines([[0][0]]);
-  for (let i = 0; i<=index; i++) {
-    krivaya += svgPolylines(polyline[i]);
-  }
+   if (document.getElementById(tmpLineId)) document.getElementById(tmpLineId).removeAttribute("id");
+   if (document.getElementById(tmpPolylineId)) document.getElementById(tmpPolylineId).removeAttribute("id");
+  if (shape === 'polyline') polyline[index].push([event.offsetX, event.offsetY]);
+ // console.log(svgPolylines(polyline[index]));
   let data = {
     uuid: window.uuid,
     line: polyline[index]
-  }
-  window.socket.send(JSON.stringify(data))
-  document.getElementById("SvgjsSvg1001").innerHTML = krivaya;
+  };
+  window.socket.send(JSON.stringify(data));
+  //document.getElementById("SvgjsSvg1001").append(svgPolylines(polyline[index]));
   index++;
 });
 

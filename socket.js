@@ -1,11 +1,10 @@
-let socket = new WebSocket("ws://localhost:8080/ws");
+let socket = new WebSocket("ws://mel.ws2019.dev.sesc-nsu.ru:8080/ws");
 window.socket = socket;
-window.uuid = Math.random()*8999999999+1000000000;
+window.uuid = Math.round(Math.random()*8999999999)+1000000000;
 console.log("Attempting Connection...");
 
 socket.onopen = () => {
     console.log("Successfully Connected");
-    let arr = [1, 2, 3, 4];
     let data = {
         uuid: window.uuid,
         line: arr
@@ -14,7 +13,12 @@ socket.onopen = () => {
 };
 
 socket.onmessage = function(event) {
-    alert("Получены данные " + event.data);
+    console.log("Получены данные " + event.data);
+    let deta = JSON.parse(event.data);
+    console.log(deta);
+    if (deta.uuid == window.uuid) return;
+    let krivaya = svgPolylines2(deta.line, 'green');
+    document.getElementById("SvgjsSvg1001").appendChild(krivaya);
 };
 
 socket.onclose = event => {
