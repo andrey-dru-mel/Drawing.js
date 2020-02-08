@@ -5,19 +5,19 @@ console.log("Attempting Connection...");
 
 socket.onopen = () => {
     console.log("Successfully Connected");
-    let data = {
+    /*let data = {
         uuid: window.uuid,
         line: arr
     }
-    socket.send(JSON.stringify(data))
+    socket.send(JSON.stringify(data))*/
 };
 
 socket.onmessage = function(event) {
     console.log("Получены данные " + event.data);
-    let deta = JSON.parse(event.data);
-    console.log(deta);
-    if (deta.uuid == window.uuid) return;
-    let krivaya = svgPolylines2(deta.line, 'green');
+    let data = JSON.parse(event.data);
+    console.log(data);
+    if (data.uuid == window.uuid) return;
+    let krivaya = svgPolylines2(data.line, data.color);
     document.getElementById("SvgjsSvg1001").appendChild(krivaya);
 };
 
