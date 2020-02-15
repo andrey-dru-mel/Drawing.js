@@ -4,7 +4,7 @@ let shape;
 let shapes = [];
 let timer;
 let option = [];
-let point = {x:0};
+let point = {};
 let krivaya;
 let text;
 let color;
@@ -52,70 +52,88 @@ const getDrawObject = function() {
 draw.on('mousedown', function(event) {
   shapes[index] = getDrawObject();
 
-  if (shape ==='rect'){
-    point = {
-      x: event.offsetX,
-      y: event.offsetY,
-    }
-  }
-  if (shape === 'text'){
-    option = {
-      x: event.offsetX,
-      y: event.offsetY,
-      'font-size':100,
-    }
-    shapes[index].attr(option);
-  }
+  option.x = event.offsetX;
+  option.y = event.offsetY;
 
   if (shape === 'polyline') {
     let date = new Date();
     timer = date.getTime();
     mousedown = true;
-    shapes[index] = [];
-    shapes[index].push([event.offsetX, event.offsetY]);
+    point = [];
+    point.push([event.offsetX, event.offsetY]);
   }
-  else{
+  else if (shape!=='text'){
     shapes[index].draw(event);
+  }
+  if (shape === 'text'){
+    size = document.getElementById('size').value;
+    option['font-size'] = size;
+    option['fill-opacity'] = 1;
+    shapes[index].attr(option);
+    let data = {
+      type: shape,
+      points: point,
+      atr: option,
+      uuid: window.uuid,
+      color: color,
+      text: text,
+    };
+    window.socket.send(JSON.stringify(data));
+    index++;
   }
 });
 draw.on('mousemove', event => {
-  if (shape === 'polyline' && mousedown && shapes[index]) {
+  if (shape === 'polyline' && mousedown && point) {
     let date = new Date();
     let ms = date.getTime();
 
-    shapes[index].push([event.offsetX, event.offsetY]);
-    krivaya = svgPolylines2(shapes[index], color);
+    point.push([event.offsetX, event.offsetY]);
+    krivaya = svgPolylines2(point, color);
     krivaya.setAttribute("id", tmpPolylineId);
     if (document.getElementById(tmpPolylineId)){document.getElementById(tmpPolylineId).remove();}
     document.getElementById("SvgjsSvg1001").appendChild(krivaya);
-    shapes[index].splice(shapes[index].length - 1, 1);
+    point.splice(point.length - 1, 1);
 
-    if ((ms-timer)*Math.sqrt((Math.pow((event.offsetX-shapes[index][shapes[index].length-1][0]), 2) +
-        Math.pow((event.offsetY-shapes[index][shapes[index].length-1][1]), 2))) <1000) return;
+    if ((ms-timer)*Math.sqrt((Math.pow((event.offsetX-point[point.length-1][0]), 2) +
+        Math.pow((event.offsetY-point[point.length-1][1]), 2))) <1000) return;
     else timer = ms;
-    shapes[index].push([event.offsetX, event.offsetY]);
-  }
-  if (shape === 'mouse paint' && shapes[index]){
-    shapes[index].draw('point', event);
+    point.push([event.offsetX, event.offsetY]);
   }
 })
 draw.on('mouseup', event => {
   if (shape ==='polyline') {
-    shapes[index].push([event.offsetX, event.offsetY]);
-    krivaya = svgPolylines2(shapes[index], color);
+    point.push([event.offsetX, event.offsetY]);
+    krivaya = svgPolylines2(point, color);
     krivaya.setAttribute("id", tmpPolylineId);
     if (document.getElementById(tmpPolylineId)) {
       document.getElementById(tmpPolylineId).remove();
     }
     document.getElementById("SvgjsSvg1001").appendChild(krivaya);
     if (document.getElementById(tmpPolylineId)) document.getElementById(tmpPolylineId).removeAttribute("id");
-  }
-  else if (shape === 'mouse paint'){
-    shapes[index].draw('stop', event);
+    mousedown = false;
   }
   else if (shape === 'rect'){
-    point.width = event.offsetX - point.x;
-    point.height = event.offsetY - point.y;
+    option.width = event.offsetX - option.x;
+    if (option.width<0){
+      option.x += option.width;
+      option.width *= -1;
+    }
+    option.height = event.offsetY - option.y;
+    if (option.height<0){
+      option.y += option.height;
+      option.height *= -1;
+    }
+    shapes[index].draw(event);
+  }
+  else if (shape === 'ellipse'){
+    option.width = event.offsetX - option.x;
+    if (option.width<0){
+      option.width *= -1;
+    }
+    option.height = event.offsetY - option.y;
+    if (option.height<0){
+      option.height *= -1;
+    }
     shapes[index].draw(event);
   }
   else{
@@ -157,7 +175,7 @@ SVG.Element.prototype.draw.extend('line polyline polygon', {
     arr.pop();
 
     if (e) {
-      var p = this.transformPoint(e.clientX, e.clientY);
+      var p = this.transformPoint(e.offsetX, e.offsetY);
       arr.push(this.snapToGrid([p.x, p.y]));
     }
 
@@ -169,7 +187,7 @@ SVG.Element.prototype.draw.extend('line polyline polygon', {
 
     if (this.el.type.indexOf('poly') > -1) {
       // Add the new Point to the point-array
-      var p = this.transformPoint(e.clientX, e.clientY),
+      var p = this.transformPoint(e.offsetX, e.offsetY),
           arr = this.el.array().valueOf();
 
       arr.push(this.snapToGrid([p.x, p.y]));
