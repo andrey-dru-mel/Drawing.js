@@ -1,13 +1,16 @@
 const draw = SVG('drawing');
 let index = 0;
 let shape;
-let shapes;
-let polyline = [];
-let polytime = [];
-const tmpLineId = window.uuid + "tmpline";
+let shapes = [];
+let timer;
+let option = [];
+let point = {x:0};
+let krivaya;
+let text;
+let color;
 const tmpPolylineId = window.uuid + "tmpline";
 
-let mousedown=false;
+let mousedown = false;
 
 function createElementFromHTML(htmlString) {
     let div = document.createElement('div');
@@ -20,89 +23,113 @@ function createElementFromHTML(htmlString) {
 const getDrawObject = function() {
   shape = document.getElementById('shape').value;
   color = document.getElementById('color').value;
-  const option = {
+  option = {
     stroke: color,
-    'stroke-width': 2,
+    'stroke-width': 1,
     'fill-opacity': 0,
   };
+
+  if (shape === 'text')
+    text = prompt("Введите текст:", "Текст");
+
   switch (shape) {
+    case 'polyline':
+      return [];
+    case 'mouse paint':
+      return draw.polyline().attr(option);
     case 'line':
-    return draw.line().attr(option);
+      return draw.line().attr(option);
     case 'ellipse':
       return draw.ellipse().attr(option);
     case 'rect':
       return draw.rect().attr(option);
+    case 'text':
+      return draw.text(text).attr(option);
   }
   return null;
 }
 
 draw.on('mousedown', function(event) {
-  mousedown=true;
+  shapes[index] = getDrawObject();
 
-  shapes = getDrawObject();
-  shapes.draw(event);
+  if (shape ==='rect'){
+    point = {
+      x: event.offsetX,
+      y: event.offsetY,
+    }
+  }
+  if (shape === 'text'){
+    option = {
+      x: event.offsetX,
+      y: event.offsetY,
+      'font-size':100,
+    }
+    shapes[index].attr(option);
+  }
 
   if (shape === 'polyline') {
-    polyline[index] = [];
-    polyline[index].push([event.offsetX, event.offsetY]);
     let date = new Date();
-    polytime[index] = date.getTime();
+    timer = date.getTime();
+    mousedown = true;
+    shapes[index] = [];
+    shapes[index].push([event.offsetX, event.offsetY]);
+  }
+  else{
+    shapes[index].draw(event);
   }
 });
 draw.on('mousemove', event => {
-  if (shape === 'polyline' && mousedown && polyline[index]) {
+  if (shape === 'polyline' && mousedown && shapes[index]) {
     let date = new Date();
     let ms = date.getTime();
 
-    polyline[index].push([event.offsetX, event.offsetY]);
-    krivaya = svgPolylines2(polyline[index], color);
+    shapes[index].push([event.offsetX, event.offsetY]);
+    krivaya = svgPolylines2(shapes[index], color);
     krivaya.setAttribute("id", tmpPolylineId);
     if (document.getElementById(tmpPolylineId)){document.getElementById(tmpPolylineId).remove();}
     document.getElementById("SvgjsSvg1001").appendChild(krivaya);
-    polyline[index].splice(polyline[index].length - 1, 1);
+    shapes[index].splice(shapes[index].length - 1, 1);
 
-    if ((ms-polytime[index])*Math.sqrt((Math.pow((event.offsetX-polyline[index][polyline[index].length-1][0]), 2) +
-        Math.pow((event.offsetY-polyline[index][polyline[index].length-1][1]), 2))) <1000) return;
-    else polytime[index]= ms;
-    polyline[index].push([event.offsetX, event.offsetY]);
-
-    krivaya = svgPolylines2(polyline[index], color);
-    krivaya.setAttribute("id", tmpPolylineId);
-    if (document.getElementById(tmpPolylineId)){document.getElementById(tmpPolylineId).remove();}
-    document.getElementById("SvgjsSvg1001").appendChild(krivaya);
+    if ((ms-timer)*Math.sqrt((Math.pow((event.offsetX-shapes[index][shapes[index].length-1][0]), 2) +
+        Math.pow((event.offsetY-shapes[index][shapes[index].length-1][1]), 2))) <1000) return;
+    else timer = ms;
+    shapes[index].push([event.offsetX, event.offsetY]);
   }
-  /*else if (shape === 'line' && mousedown && polyline[index]) {
-    polyline[index][1] = [event.offsetX, event.offsetY];
-    if (document.getElementById(tmpLineId)){document.getElementById(tmpLineId).remove();}
-    krivaya = svgPolylines2(polyline[index], color);
-    krivaya.setAttribute("id", tmpLineId);
-    document.getElementById("SvgjsSvg1001").appendChild(krivaya);
-  }*/
+  if (shape === 'mouse paint' && shapes[index]){
+    shapes[index].draw('point', event);
+  }
 })
 draw.on('mouseup', event => {
-  if (shape ==='polyline' /*|| shape === 'line'*/) {
-    if (shape === 'polyline') polyline[index].push([event.offsetX, event.offsetY]);
-    else if (shape === 'line') polyline[index][1] = [event.offsetX, event.offsetY];
-    krivaya = svgPolylines2(polyline[index], color);
+  if (shape ==='polyline') {
+    shapes[index].push([event.offsetX, event.offsetY]);
+    krivaya = svgPolylines2(shapes[index], color);
     krivaya.setAttribute("id", tmpPolylineId);
     if (document.getElementById(tmpPolylineId)) {
       document.getElementById(tmpPolylineId).remove();
     }
     document.getElementById("SvgjsSvg1001").appendChild(krivaya);
-
-    if (document.getElementById(tmpLineId)) document.getElementById(tmpLineId).removeAttribute("id");
     if (document.getElementById(tmpPolylineId)) document.getElementById(tmpPolylineId).removeAttribute("id");
-    let data = {
-      uuid: window.uuid,
-      line: polyline[index],
-      color: color
-    };
-    window.socket.send(JSON.stringify(data));
+  }
+  else if (shape === 'mouse paint'){
+    shapes[index].draw('stop', event);
+  }
+  else if (shape === 'rect'){
+    point.width = event.offsetX - point.x;
+    point.height = event.offsetY - point.y;
+    shapes[index].draw(event);
   }
   else{
-    shapes.draw(event);
+    shapes[index].draw(event);
   }
-  mousedown = false;
+  let data = {
+    type: shape,
+    points: point,
+    atr: option,
+    uuid: window.uuid,
+    color: color,
+    text: text,
+  };
+  window.socket.send(JSON.stringify(data));
   index++;
 });
 
