@@ -9,6 +9,13 @@
 <body>
 <div id="drawing" style="height: 96vh">
 
+    <script>
+        if (document.location.search === '') {
+            let answer = Math.round(Math.random() * 8999999999) + 1000000000
+            document.location.search = '?id=' + answer;
+        }
+    </script>
+
     <select id="shape">
         <option value="polyline">Кривая</option>
         <option value="line">Отрезок</option>
@@ -31,9 +38,10 @@
     </select>
 
     <select id="size">
+        <option disabled>Размер шрифта</option>
         <option value=10>10</option>
         <option value=20>20</option>
-        <option value=30>30</option>
+        <option selected value=30>30</option>
         <option value=40>40</option>
         <option value=50>50</option>
         <option value=60>60</option>

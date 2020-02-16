@@ -35,10 +35,8 @@ const getDrawObject = function() {
   switch (shape) {
     case 'polyline':
       return [];
-    case 'mouse paint':
-      return draw.polyline().attr(option);
     case 'line':
-      return draw.line().attr(option);
+      return [];
     case 'ellipse':
       return draw.ellipse().attr(option);
     case 'rect':
@@ -52,8 +50,14 @@ const getDrawObject = function() {
 draw.on('mousedown', function(event) {
   shapes[index] = getDrawObject();
 
-  option.x = event.offsetX;
-  option.y = event.offsetY;
+  if (shape === 'rect') {
+      option.x = event.offsetX;
+      option.y = event.offsetY;
+  }
+  else if (shape === 'ellipse'){
+      option.cx = event.offsetX;
+      option.cy = event.offsetY;
+  }
 
   if (shape === 'polyline') {
     let date = new Date();
@@ -62,25 +66,29 @@ draw.on('mousedown', function(event) {
     point = [];
     point.push([event.offsetX, event.offsetY]);
   }
-  else if (shape!=='text'){
+  else if (shape === 'text') {
+      size = document.getElementById('size').value;
+      option['font-size'] = size;
+      option['fill-opacity'] = 1;
+      shapes[index].attr(option);
+      let data = {
+          type: shape,
+          points: point,
+          atr: option,
+          uuid: window.uuid,
+          urlid: window.urlid,
+          color: color,
+          text: text,
+      };
+  }
+  else if (shape === 'line'){
+      point = [[event.offsetX, event.offsetY], [event.offsetX, event.offsetY]];
+  }
+  else{
     shapes[index].draw(event);
   }
-  if (shape === 'text'){
-    size = document.getElementById('size').value;
-    option['font-size'] = size;
-    option['fill-opacity'] = 1;
-    shapes[index].attr(option);
-    let data = {
-      type: shape,
-      points: point,
-      atr: option,
-      uuid: window.uuid,
-      color: color,
-      text: text,
-    };
     window.socket.send(JSON.stringify(data));
     index++;
-  }
 });
 draw.on('mousemove', event => {
   if (shape === 'polyline' && mousedown && point) {
@@ -98,6 +106,9 @@ draw.on('mousemove', event => {
         Math.pow((event.offsetY-point[point.length-1][1]), 2))) <1000) return;
     else timer = ms;
     point.push([event.offsetX, event.offsetY]);
+  }
+  else if (shape === 'line' && mousedown && point){
+      point[1] = [event.offsetX, event.offsetY];
   }
 })
 draw.on('mouseup', event => {
@@ -126,15 +137,18 @@ draw.on('mouseup', event => {
     shapes[index].draw(event);
   }
   else if (shape === 'ellipse'){
-    option.width = event.offsetX - option.x;
-    if (option.width<0){
-      option.width *= -1;
+    option.rx = event.offsetX - option.cx;
+    if (option.rx<0){
+      option.rx *= -1;
     }
-    option.height = event.offsetY - option.y;
-    if (option.height<0){
-      option.height *= -1;
+    option.ry = event.offsetY - option.cy;
+    if (option.ry<0){
+      option.ry *= -1;
     }
     shapes[index].draw(event);
+  }
+  else if (shape === 'line'){
+      point[1] = [event.offsetX, event.offsetY];
   }
   else{
     shapes[index].draw(event);
@@ -144,6 +158,7 @@ draw.on('mouseup', event => {
     points: point,
     atr: option,
     uuid: window.uuid,
+    urlid: window.urlid,
     color: color,
     text: text,
   };
