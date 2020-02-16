@@ -10,7 +10,12 @@ socket.onopen = () => {
 socket.onmessage = function(event) {
     console.log("Получены данные " + event.data);
     let data = JSON.parse(event.data);
-    if (data.uuid == window.uuid) return;
+
+    if (data.type === 'number'){
+        document.getElementById("number").innerHTML = data.number;
+    }
+    else if (data.uuid == window.uuid) return;
+
     if (data.type === 'polyline') {
         let krivaya = svgPolylines2(data.points, data.color);
         document.getElementById("SvgjsSvg1001").appendChild(krivaya);
