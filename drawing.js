@@ -50,7 +50,7 @@ const getDrawObject = function() {
 draw.on('mousedown', function(event) {
   shapes[index] = getDrawObject();
 
-  if (shape === 'rect') {
+  if (shape === 'rect' || shape === 'text') {
       option.x = event.offsetX;
       option.y = event.offsetY;
   }
