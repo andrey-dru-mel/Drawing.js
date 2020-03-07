@@ -28,6 +28,7 @@ socket.onmessage = function(event) {
         draw.ellipse().attr(data.atr);
     }
     else if (data.type === 'text'){
+        console.log(data.text);
         draw.text(data.text).attr(data.atr);
     }
 };

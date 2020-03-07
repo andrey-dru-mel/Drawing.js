@@ -36,7 +36,7 @@ const getDrawObject = function() {
     case 'polyline':
       return [];
     case 'line':
-      return [];
+      return draw.line().attr(option);
     case 'ellipse':
       return draw.ellipse().attr(option);
     case 'rect':
@@ -70,25 +70,24 @@ draw.on('mousedown', function(event) {
       size = document.getElementById('size').value;
       option['font-size'] = size;
       option['fill-opacity'] = 1;
-      shapes[index].attr(option);
       let data = {
-          type: shape,
-          points: point,
-          atr: option,
-          uuid: window.uuid,
-          urlid: window.urlid,
-          color: color,
-          text: text,
+        type: shape,
+        points: point,
+        atr: option,
+        uuid: window.uuid,
+        urlid: window.urlid,
+        color: color,
+        text: text,
       };
+      shapes[index].attr(option);window.socket.send(JSON.stringify(data));
+      index++;
   }
-  else if (shape === 'line'){
+  /*else if (shape === 'line'){
       point = [[event.offsetX, event.offsetY], [event.offsetX, event.offsetY]];
-  }
+  }*/
   else{
     shapes[index].draw(event);
   }
-    window.socket.send(JSON.stringify(data));
-    index++;
 });
 draw.on('mousemove', event => {
   if (shape === 'polyline' && mousedown && point) {
@@ -107,9 +106,9 @@ draw.on('mousemove', event => {
     else timer = ms;
     point.push([event.offsetX, event.offsetY]);
   }
-  else if (shape === 'line' && mousedown && point){
+  /*else if (shape === 'line' && mousedown && point){
       point[1] = [event.offsetX, event.offsetY];
-  }
+  }*/
 })
 draw.on('mouseup', event => {
   if (shape ==='polyline') {
@@ -147,9 +146,9 @@ draw.on('mouseup', event => {
     }
     shapes[index].draw(event);
   }
-  else if (shape === 'line'){
+  /*else if (shape === 'line'){
       point[1] = [event.offsetX, event.offsetY];
-  }
+  }*/
   else{
     shapes[index].draw(event);
   }
