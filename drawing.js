@@ -72,6 +72,10 @@ draw.on('mousedown', function(event) {
       option.cx = event.offsetX;
       option.cy = event.offsetY;
   }
+  else if (shape === 'line'){
+      option.x1 = event.offsetX;
+      option.y1 = event.offsetY;
+  }
 
   if (shape === 'polyline') {
     let date = new Date();
@@ -117,9 +121,6 @@ draw.on('mousemove', event => {
     else timer = ms;
     point.push([event.offsetX, event.offsetY]);
   }
-  /*else if (shape === 'line' && mousedown && point){
-      point[1] = [event.offsetX, event.offsetY];
-  }*/
 })
 draw.on('mouseup', event => {
   if (shape ==='polyline') {
@@ -157,9 +158,12 @@ draw.on('mouseup', event => {
     }
     shapes[index].draw(event);
   }
-  /*else if (shape === 'line'){
-      point[1] = [event.offsetX, event.offsetY];
-  }*/
+  else if (shape === 'line'){
+      option.x2 = event.offsetX;
+      option.y2 = event.offsetY;
+      console.log(event);
+      shapes[index].draw(event);
+  }
   else{
     shapes[index].draw(event);
   }
