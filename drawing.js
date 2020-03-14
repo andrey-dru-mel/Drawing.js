@@ -1,4 +1,4 @@
-const draw = SVG('drawing');
+let draw = SVG('drawing');
 let index = 0;
 let shape;
 let shapes = [];
@@ -9,6 +9,20 @@ let krivaya;
 let text;
 let color;
 const tmpPolylineId = window.uuid + "tmpline";
+
+let URLIMG = prompt("Введите URL картинки:", "https://easy-physic.ru/wp-content/uploads/2017/05/%D0%98%D0%BD%D0%BD%D0%B8%D0%BD%D0%B0_%D1%81%D1%82%D0%B5%D1%80%D0%B5%D0%BE%D0%BC1.png")
+let image = draw.image(URLIMG)
+
+let button = document.getElementById("clear");
+
+button.onclick = function ok(){
+  shapes[index] = [];
+  let myNode = document.getElementById("SvgjsSvg1001");
+  while (myNode.firstChild) {
+    myNode.removeChild(myNode.firstChild);
+  }
+  let image = draw.image(URLIMG)
+}
 
 let mousedown = false;
 
@@ -82,9 +96,6 @@ draw.on('mousedown', function(event) {
       shapes[index].attr(option);window.socket.send(JSON.stringify(data));
       index++;
   }
-  /*else if (shape === 'line'){
-      point = [[event.offsetX, event.offsetY], [event.offsetX, event.offsetY]];
-  }*/
   else{
     shapes[index].draw(event);
   }
