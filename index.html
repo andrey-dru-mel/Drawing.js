@@ -38,10 +38,10 @@
     </select>
 
     <select id="size">
-        <option disabled>Размер шрифта</option>
+        <option selected value="30" disabled>Размер шрифта</option>
         <option value=10>10</option>
         <option value=20>20</option>
-        <option selected value=30>30</option>
+        <option value=30>30</option>
         <option value=40>40</option>
         <option value=50>50</option>
         <option value=60>60</option>
@@ -50,10 +50,34 @@
         <option value=90>90</option>
         <option value=100>100</option>
     </select>
+
+    <select id="width">
+        <option selected value="3" disabled>Ширина линии</option>
+        <option value=1>1</option>
+        <option value=2>2</option>
+        <option value=3>3</option>
+        <option value=4>4</option>
+        <option value=5>5</option>
+        <option value=6>6</option>
+        <option value=7>7</option>
+        <option value=8>8</option>
+        <option value=9>9</option>
+        <option value=10>10</option>
+    </select>
+
+    <select id="fill">
+        <option selected value="0" disabled>Тип линии</option>
+        <option value="0">Сплошная</option>
+        <option value="10,10">Штриховая</option>
+        <option value="20,5,5,5">Штрихпунктирная</option>
+    </select>
+
     <input id = "clear" type="reset" value="Стереть всё">
+    <input id = "save" type="reset" value="Сохранить">
     Количество посетителей: <span id = "number"></span>
     <br/>
 
+    <div id="SVGdiv" style="height: 96vh"></div>
 
 </div>
 

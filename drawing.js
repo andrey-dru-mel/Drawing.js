@@ -1,4 +1,4 @@
-let draw = SVG('drawing');
+let draw = SVG('SVGdiv');
 let index = 0;
 let shape;
 let shapes = [];
@@ -6,16 +6,31 @@ let timer;
 let option = [];
 let point = {};
 let krivaya;
-let text;
+let text, width, fill;
 let color;
 const tmpPolylineId = window.uuid + "tmpline";
 
 let URLIMG = prompt("Введите URL картинки:", "https://easy-physic.ru/wp-content/uploads/2017/05/%D0%98%D0%BD%D0%BD%D0%B8%D0%BD%D0%B0_%D1%81%D1%82%D0%B5%D1%80%D0%B5%D0%BE%D0%BC1.png")
-let image = draw.image(URLIMG)
+draw.image(URLIMG)
 
-let button = document.getElementById("clear");
+let buttonClear = document.getElementById("clear");
+let buttonSave = document.getElementById("save");
 
-button.onclick = function ok(){
+buttonSave.onclick = function downloadSVG() {
+    const blob = new Blob(
+        [document.getElementById("SVGdiv").innerHTML],
+        {
+            type: "image/svg+xml"
+        }
+    );
+    const url = window.URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = "image.svg";
+    link.click();
+}
+
+buttonClear.onclick = function ok(){
   shapes[index] = [];
   let myNode = document.getElementById("SvgjsSvg1001");
   while (myNode.firstChild) {
@@ -37,10 +52,13 @@ function createElementFromHTML(htmlString) {
 const getDrawObject = function() {
   shape = document.getElementById('shape').value;
   color = document.getElementById('color').value;
+  width = document.getElementById('width').value;
+  fill = document.getElementById('fill').value;
   option = {
     stroke: color,
-    'stroke-width': 1,
+    'stroke-width': width,
     'fill-opacity': 0,
+    'stroke-dasharray': fill,
   };
 
   if (shape === 'text')
@@ -110,7 +128,7 @@ draw.on('mousemove', event => {
     let ms = date.getTime();
 
     point.push([event.offsetX, event.offsetY]);
-    krivaya = svgPolylines2(point, color);
+    krivaya = svgPolylines2(point, color, width);
     krivaya.setAttribute("id", tmpPolylineId);
     if (document.getElementById(tmpPolylineId)){document.getElementById(tmpPolylineId).remove();}
     document.getElementById("SvgjsSvg1001").appendChild(krivaya);
@@ -125,7 +143,7 @@ draw.on('mousemove', event => {
 draw.on('mouseup', event => {
   if (shape ==='polyline') {
     point.push([event.offsetX, event.offsetY]);
-    krivaya = svgPolylines2(point, color);
+    krivaya = svgPolylines2(point, color, width);
     krivaya.setAttribute("id", tmpPolylineId);
     if (document.getElementById(tmpPolylineId)) {
       document.getElementById(tmpPolylineId).remove();
@@ -161,7 +179,6 @@ draw.on('mouseup', event => {
   else if (shape === 'line'){
       option.x2 = event.offsetX;
       option.y2 = event.offsetY;
-      console.log(event);
       shapes[index].draw(event);
   }
   else{
@@ -204,7 +221,7 @@ SVG.Element.prototype.draw.extend('line polyline polygon', {
     arr.pop();
 
     if (e) {
-      var p = this.transformPoint(e.offsetX, e.offsetY);
+      var p = this.transformPoint(e.clientX, e.clientY);
       arr.push(this.snapToGrid([p.x, p.y]));
     }
 
@@ -216,7 +233,7 @@ SVG.Element.prototype.draw.extend('line polyline polygon', {
 
     if (this.el.type.indexOf('poly') > -1) {
       // Add the new Point to the point-array
-      var p = this.transformPoint(e.offsetX, e.offsetY),
+      var p = this.transformPoint(e.clientX, e.clientY),
           arr = this.el.array().valueOf();
 
       arr.push(this.snapToGrid([p.x, p.y]));
