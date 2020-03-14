@@ -92,7 +92,7 @@ const svgPolylines = function(points, color){
     return svgPath(points, bezierCommand, color);
 }
 
-const svgPath2 = (points, command, color, width) => {
+const svgPath2 = (points, command, color, width, fill) => {
     // build the d attributes by looping over the points
     const d = points.reduce((acc, point, i, a) => i === 0
         ? `M ${point[0]},${point[1]}`
@@ -103,9 +103,10 @@ const svgPath2 = (points, command, color, width) => {
     path.setAttribute("fill", "none");
     path.setAttribute("stroke", color);
     path.setAttribute("stroke-width", width);
+    path.setAttribute('stroke-dasharray', fill);
     return path;
 }
 
-const svgPolylines2 = function(points, color, width){
-    return svgPath2(points, bezierCommand, color, width);
+const svgPolylines2 = function(points, color, width, fill){
+    return svgPath2(points, bezierCommand, color, width, fill);
 }

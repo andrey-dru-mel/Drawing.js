@@ -18,7 +18,7 @@ socket.onmessage = function(event) {
     else if (data.uuid == window.uuid || data.urlid!=window.urlid) return;
 
     if (data.type === 'polyline') {
-        let krivaya = svgPolylines2(data.points, data.color);
+        let krivaya = svgPolylines2(data.points, data.color, data.atr['stroke-width'], data.atr['stroke-dasharray']);
         document.getElementById("SvgjsSvg1001").appendChild(krivaya);
     }
     else if (data.type === 'rect'){

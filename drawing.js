@@ -61,8 +61,10 @@ const getDrawObject = function() {
     'stroke-dasharray': fill,
   };
 
-  if (shape === 'text')
+  if (shape === 'text') {
+    option['stroke-width'] = 2;
     text = prompt("Введите текст:", "Текст");
+  }
 
   switch (shape) {
     case 'polyline':
@@ -128,7 +130,7 @@ draw.on('mousemove', event => {
     let ms = date.getTime();
 
     point.push([event.offsetX, event.offsetY]);
-    krivaya = svgPolylines2(point, color, width);
+    krivaya = svgPolylines2(point, color, width, fill);
     krivaya.setAttribute("id", tmpPolylineId);
     if (document.getElementById(tmpPolylineId)){document.getElementById(tmpPolylineId).remove();}
     document.getElementById("SvgjsSvg1001").appendChild(krivaya);
@@ -143,7 +145,7 @@ draw.on('mousemove', event => {
 draw.on('mouseup', event => {
   if (shape ==='polyline') {
     point.push([event.offsetX, event.offsetY]);
-    krivaya = svgPolylines2(point, color, width);
+    krivaya = svgPolylines2(point, color, width, fill);
     krivaya.setAttribute("id", tmpPolylineId);
     if (document.getElementById(tmpPolylineId)) {
       document.getElementById(tmpPolylineId).remove();
