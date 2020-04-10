@@ -2,6 +2,7 @@ let socket = new WebSocket("ws://mel.ws2019.dev.sesc-nsu.ru:8081/ws");
 window.socket = socket;
 window.uuid = Math.round(Math.random()*8999999999)+1000000000;
 window.urlid = document.location.search;
+window.URLIMG = '';
 console.log("Attempting Connection...");
 
 socket.onopen = () => {
@@ -9,15 +10,34 @@ socket.onopen = () => {
 };
 
 socket.onmessage = function(event) {
-    //console.log("Получены данные " + event.data);
     let data = JSON.parse(event.data);
 
     if (data.type === 'number'){
         document.getElementById("number").innerHTML = data.number;
+        if (data.urlimg === ''){
+            window.URLIMG = prompt("Введите URL картинки:", "https://easy-physic.ru/wp-content/uploads/2017/05/%D0%98%D0%BD%D0%BD%D0%B8%D0%BD%D0%B0_%D1%81%D1%82%D0%B5%D1%80%D0%B5%D0%BE%D0%BC1.png")
+            draw.image(window.URLIMG)
+            let itog = {
+                type: 'UrlImg',
+                urlimg: window.URLIMG,
+            };
+            window.socket.send(JSON.stringify(itog));
+        }
+        else{
+            draw.image(data.urlimg);
+            window.URLIMG = data.urlimg;
+        }
     }
     else if (data.uuid == window.uuid || data.urlid!=window.urlid) return;
 
-    if (data.type === 'polyline') {
+    if (data.type === 'ClearAll'){
+        let myNode = document.getElementById("SvgjsSvg1001");
+        while (myNode.firstChild) {
+            myNode.removeChild(myNode.firstChild);
+        }
+        draw.image(window.URLIMG)
+    }
+    else if (data.type === 'polyline') {
         let krivaya = svgPolylines2(data.points, data.color, data.atr['stroke-width'], data.atr['stroke-dasharray']);
         document.getElementById("SvgjsSvg1001").appendChild(krivaya);
     }

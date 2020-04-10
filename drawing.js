@@ -10,9 +10,6 @@ let text, width, fill;
 let color;
 const tmpPolylineId = window.uuid + "tmpline";
 
-let URLIMG = prompt("Введите URL картинки:", "https://easy-physic.ru/wp-content/uploads/2017/05/%D0%98%D0%BD%D0%BD%D0%B8%D0%BD%D0%B0_%D1%81%D1%82%D0%B5%D1%80%D0%B5%D0%BE%D0%BC1.png")
-draw.image(URLIMG)
-
 let buttonClear = document.getElementById("clear");
 let buttonSave = document.getElementById("save");
 
@@ -36,7 +33,13 @@ buttonClear.onclick = function ok(){
   while (myNode.firstChild) {
     myNode.removeChild(myNode.firstChild);
   }
-  let image = draw.image(URLIMG)
+  draw.image(window.URLIMG);
+  let data = {
+      type: "ClearAll",
+      uuid: window.uuid,
+      urlid: window.urlid,
+  }
+  window.socket.send(JSON.stringify(data));
 }
 
 let mousedown = false;
@@ -62,7 +65,8 @@ const getDrawObject = function() {
   };
 
   if (shape === 'text') {
-    option['stroke-width'] = 2;
+    option['stroke-width'] = 1;
+      option['stroke-dasharray'] = 0;
     text = prompt("Введите текст:", "Текст");
   }
 
@@ -137,7 +141,7 @@ draw.on('mousemove', event => {
     point.splice(point.length - 1, 1);
 
     if ((ms-timer)*Math.sqrt((Math.pow((event.offsetX-point[point.length-1][0]), 2) +
-        Math.pow((event.offsetY-point[point.length-1][1]), 2))) <1000) return;
+        Math.pow((event.offsetY-point[point.length-1][1]), 2))) < 500) return;
     else timer = ms;
     point.push([event.offsetX, event.offsetY]);
   }
