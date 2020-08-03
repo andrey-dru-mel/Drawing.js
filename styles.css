@@ -1,0 +1,65 @@
+/* CSS Document */
+
+body{
+    background: #B7D1EC;
+}
+
+div.center_list{
+    text-align: center;
+}
+
+.menu-item{
+    /*Местоположение элемента*/
+    margin: 7px 12px;
+    float: left;
+    clear: left;
+
+    /*Форма элемента*/
+    width: 50px;
+    height: 50px;
+    border-radius: 50%;
+
+    /*Вид элемента*/
+    border: 0;
+    background-color: midnightblue;
+    color: white;
+
+    /*Текст*/
+    user-select: none;
+    text-align: center;
+
+    /*Анимация*/
+    transition: 400ms;
+}
+
+.menu-item:hover{
+    color: midnightblue;
+    background-color: aliceblue;
+
+    transform: scale(1.2, 1.2);
+    margin: 20px 12px;
+}
+
+#menu {
+    position: absolute;
+    top: 145px;
+    transition: 400ms;
+}
+
+.list {
+    -webkit-appearance: none;
+    background-color: #47CDF3;
+    color: black;
+}
+
+#SVGdiv{
+    background-color: white;
+    user-select: none;
+}
+
+#shape{
+    background-image: url('/images/pen.png');
+    background-size: 30px;
+    background-position: 10px 10px;
+    background-repeat: no-repeat;
+}

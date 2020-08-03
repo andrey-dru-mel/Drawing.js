@@ -27,6 +27,15 @@ buttonSave.onclick = function downloadSVG() {
     link.click();
 }
 
+document.addEventListener('keydown', function(event) {
+  if (event.code == 'KeyZ' && (event.ctrlKey || event.metaKey)) {
+    shapes[index]=[];
+    index--;
+    let myNode = document.getElementById("SvgjsSvg1001");
+    myNode.removeChild(myNode.lastChild);
+  }
+});
+
 buttonClear.onclick = function ok(){
   shapes[index] = [];
   let myNode = document.getElementById("SvgjsSvg1001");
@@ -57,6 +66,7 @@ const getDrawObject = function() {
   color = document.getElementById('color').value;
   width = document.getElementById('width').value;
   fill = document.getElementById('fill').value;
+
   option = {
     stroke: color,
     'stroke-width': width,
