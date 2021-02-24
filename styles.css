@@ -4,13 +4,9 @@ body{
     background: #B7D1EC;
 }
 
-div.center_list{
-    text-align: center;
-}
-
 .menu-item{
     /*Местоположение элемента*/
-    margin: 7px 12px;
+    margin: 7px 0px;
     float: left;
     clear: left;
 
@@ -36,14 +32,21 @@ div.center_list{
     color: midnightblue;
     background-color: aliceblue;
 
-    transform: scale(1.2, 1.2);
-    margin: 20px 12px;
+    transform: scale(1.4);
+    margin: 20px 0px;
 }
 
 #menu {
     position: absolute;
-    top: 145px;
+    top: 120px;
+    left: 30px;
     transition: 400ms;
+    z-index: 100;
+    user-select: none;
+}
+
+#SvgjsSvg1001 *:hover {
+    stroke: #000000;
 }
 
 .list {
@@ -55,6 +58,13 @@ div.center_list{
 #SVGdiv{
     background-color: white;
     user-select: none;
+    position: absolute;
+    bottom: 0px;
+    top: 0px;
+    right: 0px;
+    left: 0px;
+    transition: 600ms;
+    z-index: 2;
 }
 
 #shape{
@@ -62,4 +72,13 @@ div.center_list{
     background-size: 30px;
     background-position: 10px 10px;
     background-repeat: no-repeat;
+}
+
+#pre-number{
+    font: bolder medium sans-serif;
+    position: absolute;
+    color: black;
+    text-shadow: 0px 0px 5px white;
+    z-index: 100;
+    user-select: none;
 }

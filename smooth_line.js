@@ -104,6 +104,7 @@ const svgPath2 = (points, command, color, width, fill) => {
     path.setAttribute("stroke", color);
     path.setAttribute("stroke-width", width);
     path.setAttribute('stroke-dasharray', fill);
+    path.setAttribute("onclick", "return elemDelete(this)");
     return path;
 }
 

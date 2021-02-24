@@ -72,6 +72,7 @@ const getDrawObject = function() {
     'stroke-width': width,
     'fill-opacity': 0,
     'stroke-dasharray': fill,
+    "onclick": "return elemDelete(this)",
   };
 
   if (shape === 'text') {
@@ -93,6 +94,11 @@ const getDrawObject = function() {
       return draw.text(text).attr(option);
   }
   return null;
+}
+
+function elemDelete(element){
+  element.setAttribute("stroke", color);
+  if (shape=="delete") element.parentNode.removeChild(element);
 }
 
 draw.on('mousedown', function(event) {
@@ -134,7 +140,7 @@ draw.on('mousedown', function(event) {
       shapes[index].attr(option);window.socket.send(JSON.stringify(data));
       index++;
   }
-  else{
+  else if (shape!="none" && shape!="delete"){
     shapes[index].draw(event);
   }
 });
@@ -197,7 +203,7 @@ draw.on('mouseup', event => {
       option.y2 = event.offsetY;
       shapes[index].draw(event);
   }
-  else{
+  else if(shape!="none" && shape!="delete"){
     shapes[index].draw(event);
   }
   let data = {

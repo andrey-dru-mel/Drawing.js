@@ -3,8 +3,12 @@
 <head>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8">
     <title>Пример веб-страницы</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.3/svg.min.js"></script>
+    <!--<script src="https://cdnjs.cloudflare.com/ajax/libs/svg.js/2.6.3/svg.min.js"></script>-->
+    <script src="svg.min.js"></script>
     <script src="SVG.draw.js"></script>
+
+    <script src="socket.js">
+    </script>
 
     <link rel="stylesheet" type="text/css" href="/styles.css">
 
@@ -19,6 +23,10 @@
         }
     </script>
 
+    <div id="SVGdiv"></div>
+
+    <div id="pre-number">Количество посетителей: <span id = "number"></span></div>
+
     <div id="menu">
 
         <select class="menu-item list" id="shape">
@@ -28,6 +36,8 @@
             <option value="ellipse">Эллипс</option>
             <option value="rect">Прямоугольник</option>
             <option value="text">Текст</option>
+            <option value="none"> Рука </option>
+            <option value="delete"> Ластик </option>
         </select>
 
         <select class="menu-item list" id="color">
@@ -79,19 +89,18 @@
             <option value="20,5,5,5">Штрихпунктирная</option>
         </select>
 
+        <select class="menu-item list" id="angle">
+            <option value="without" disabled selected> Угол </option>
+            <option value="without"> Автоматически </option>
+            <option value="90" > Перпендикуляр </option>
+        </select>
+
         <input class="menu-item" id = "clear" type="reset" value="Clear">
         <input class="menu-item" id = "save" type="reset" value="Save">
 
     </div>
 
-    Количество посетителей: <span id = "number"></span>
-
-    <div id="SVGdiv" style="height: 96vh"> </div>
-
 </div>
-
-<script src="socket.js">
-</script>
 
 <script src='drawing.js'>
 </script>

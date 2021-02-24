@@ -1,7 +1,9 @@
-let socket = new WebSocket("ws://mel.ws2019.dev.sesc-nsu.ru:8081/ws");
+let socket = new WebSocket("ws://mel.ws2019.dev.sesc-nsu.ru:8080/ws");
 window.socket = socket;
 window.uuid = Math.round(Math.random()*8999999999)+1000000000;
 window.urlid = document.location.search;
+firstopen = 0;
+wasdrawed = 0;
 window.URLIMG = '';
 console.log("Attempting Connection...");
 
@@ -14,18 +16,24 @@ socket.onmessage = function(event) {
 
     if (data.type === 'number'){
         document.getElementById("number").innerHTML = data.number;
-        if (data.urlimg === ''){
+        if (data.number === 1 && firstopen === 0){
+            firstopen = 1;
             window.URLIMG = prompt("Введите URL картинки:", "https://easy-physic.ru/wp-content/uploads/2017/05/%D0%98%D0%BD%D0%BD%D0%B8%D0%BD%D0%B0_%D1%81%D1%82%D0%B5%D1%80%D0%B5%D0%BE%D0%BC1.png")
-            draw.image(window.URLIMG)
+        }
+        if (window.URLIMG != '') {
             let itog = {
                 type: 'UrlImg',
                 urlimg: window.URLIMG,
             };
             window.socket.send(JSON.stringify(itog));
         }
-        else{
-            draw.image(data.urlimg);
+    }
+    else if (data.type === 'UrlImg'){
+        if (data.urlimg != '')
             window.URLIMG = data.urlimg;
+        if (wasdrawed === 0 && data.urlimg != '') {
+            draw.image(data.urlimg)
+            wasdrawed++;
         }
     }
     else if (data.uuid == window.uuid || data.urlid!=window.urlid) return;
