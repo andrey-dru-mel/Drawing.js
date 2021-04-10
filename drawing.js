@@ -1,13 +1,11 @@
 let draw = SVG('SVGdiv');
 let index = 0;
-let shape;
+let shape, angle, text, width, fill, color, timer;
 let shapes = [];
-let timer;
 let option = [];
 let point = {};
-let krivaya;
-let text, width, fill;
-let color;
+let krivaya, sin, cos;
+window.x2 = 0, window.y2 = 0, window.angle='without';
 const tmpPolylineId = window.uuid + "tmpline";
 
 let buttonClear = document.getElementById("clear");
@@ -66,6 +64,8 @@ const getDrawObject = function() {
   color = document.getElementById('color').value;
   width = document.getElementById('width').value;
   fill = document.getElementById('fill').value;
+  angle = document.getElementById('angle').value;
+  window.angle=angle;
 
   option = {
     stroke: color,
@@ -73,6 +73,7 @@ const getDrawObject = function() {
     'fill-opacity': 0,
     'stroke-dasharray': fill,
     "onclick": "return elemDelete(this)",
+    id: index,
   };
 
   if (shape === 'text') {
@@ -97,8 +98,13 @@ const getDrawObject = function() {
 }
 
 function elemDelete(element){
-  element.setAttribute("stroke", color);
-  if (shape=="delete") element.parentNode.removeChild(element);
+  if (shape==='hand') element.setAttribute("stroke", color);
+  else if (shape==='delete') element.parentNode.removeChild(element);
+  else if (shape==='line' && angle==='90'){
+    let x1 = element.x1.baseVal.value, x2 = element.x2.baseVal.value, y1 = element.y1.baseVal.value, y2 = element.y2.baseVal.value;
+    sin = -(y2-y1)/Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+    cos = (x2-x1)/Math.sqrt(Math.pow(x2-x1, 2) + Math.pow(y2-y1, 2));
+  }
 }
 
 draw.on('mousedown', function(event) {
@@ -109,8 +115,8 @@ draw.on('mousedown', function(event) {
       option.y = event.offsetY;
   }
   else if (shape === 'ellipse'){
-      option.cx = event.offsetX;
-      option.cy = event.offsetY;
+    option.cx = event.offsetX;
+    option.cy = event.offsetY;
   }
   else if (shape === 'line'){
       option.x1 = event.offsetX;
@@ -140,7 +146,7 @@ draw.on('mousedown', function(event) {
       shapes[index].attr(option);window.socket.send(JSON.stringify(data));
       index++;
   }
-  else if (shape!="none" && shape!="delete"){
+  else if (shape!="hand" && shape!="delete"){
     shapes[index].draw(event);
   }
 });
@@ -160,6 +166,10 @@ draw.on('mousemove', event => {
         Math.pow((event.offsetY-point[point.length-1][1]), 2))) < 500) return;
     else timer = ms;
     point.push([event.offsetX, event.offsetY]);
+  }
+  else if (angle === '90' && shape === 'line'){
+    window.x2 = option.x1 + Math.sqrt(Math.pow(event.offsetX-option.x1, 2) + Math.pow(event.offsetY-option.y1, 2)) * sin;
+    window.y2 = option.y1 + Math.sqrt(Math.pow(event.offsetY-option.y1, 2) + Math.pow(event.offsetY-option.y1, 2)) * cos;
   }
 })
 draw.on('mouseup', event => {
@@ -199,11 +209,18 @@ draw.on('mouseup', event => {
     shapes[index].draw(event);
   }
   else if (shape === 'line'){
+    if(angle==='without') {
       option.x2 = event.offsetX;
       option.y2 = event.offsetY;
-      shapes[index].draw(event);
+    }
+    else if (angle==='90'){
+      console.log(sin);
+      option.x2 = option.x1 + Math.sqrt(Math.pow(event.offsetX-option.x1, 2) + Math.pow(event.offsetY-option.y1, 2)) * sin;
+      option.y2 = option.y1 + Math.sqrt(Math.pow(event.offsetY-option.y1, 2) + Math.pow(event.offsetY-option.y1, 2)) * cos;
+    }
+    shapes[index].draw(event);
   }
-  else if(shape!="none" && shape!="delete"){
+  else if(shape!="hand" && shape!="delete"){
     shapes[index].draw(event);
   }
   let data = {

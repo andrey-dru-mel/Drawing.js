@@ -71,6 +71,7 @@
             var b = this.startPoint;
             this.el.attr({x: b.x, y: b.y, height: 0, width: 0})
         }, calc: function (a) {
+            console.log('hey');
             var b = {x: this.startPoint.x, y: this.startPoint.y}, c = this.transformPoint(a.clientX, a.clientY);
             b.width = c.x - b.x, b.height = c.y - b.y, this.snapToGrid(b), b.width < 0 && (b.x = b.x + b.width, b.width = -b.width), b.height < 0 && (b.y = b.y + b.height, b.height = -b.height), this.el.attr(b)
         }
