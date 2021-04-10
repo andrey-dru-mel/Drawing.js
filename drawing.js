@@ -86,7 +86,8 @@ const getDrawObject = function() {
     case 'polyline':
       return [];
     case 'line':
-      return draw.line().attr(option);
+      if (angle==='90') return document.createElementNS('http://www.w3.org/2000/svg','line')
+      else return draw.line().attr(option);
     case 'ellipse':
       return draw.ellipse().attr(option);
     case 'rect':
@@ -118,9 +119,25 @@ draw.on('mousedown', function(event) {
     option.cx = event.offsetX;
     option.cy = event.offsetY;
   }
-  else if (shape === 'line'){
+  else if (shape === 'line' && angle!=='90'){
       option.x1 = event.offsetX;
       option.y1 = event.offsetY;
+  }
+  else if (shape === 'line' && angle==='90'){
+    option.x1 = event.offsetX;
+    option.y1 = event.offsetY;
+    shapes[index].setAttribute('id','line2');
+    shapes[index].setAttribute('x1', event.offsetX);
+    shapes[index].setAttribute('y1', event.offsetY);
+    shapes[index].setAttribute('x2', event.offsetX);
+    shapes[index].setAttribute('y2', event.offsetY);
+    shapes[index].setAttribute("stroke", color);
+    shapes[index].setAttribute("stroke-width", width);
+    shapes[index].setAttribute("fill-opacity", 0);
+    shapes[index].setAttribute("stroke-dasharray", fill);
+    shapes[index].setAttribute("onclick", "return elemDelete(this)");
+    shapes[index].setAttribute("id", index);
+    mousedown = true;
   }
 
   if (shape === 'polyline') {
@@ -146,7 +163,7 @@ draw.on('mousedown', function(event) {
       shapes[index].attr(option);window.socket.send(JSON.stringify(data));
       index++;
   }
-  else if (shape!="hand" && shape!="delete"){
+  else if (shape!=="hand" && shape!=="delete" && !(shape==='line' && angle==='90')){
     shapes[index].draw(event);
   }
 });
@@ -167,12 +184,17 @@ draw.on('mousemove', event => {
     else timer = ms;
     point.push([event.offsetX, event.offsetY]);
   }
-  else if (angle === '90' && shape === 'line'){
-    window.x2 = option.x1 + Math.sqrt(Math.pow(event.offsetX-option.x1, 2) + Math.pow(event.offsetY-option.y1, 2)) * sin;
-    window.y2 = option.y1 + Math.sqrt(Math.pow(event.offsetY-option.y1, 2) + Math.pow(event.offsetY-option.y1, 2)) * cos;
+  else if (angle === '90' && shape === 'line' && mousedown){
+    let x1 = shapes[index].x1.baseVal.value, y1 = shapes[index].y1.baseVal.value;
+    let k = (event.offsetX-x1)*sin+(event.offsetY-y1)*cos;
+    k=k/Math.abs(k);
+    shapes[index].setAttribute('x2',x1 + k*Math.sqrt(Math.pow(event.offsetX-x1, 2) + Math.pow(event.offsetY-y1, 2)) * sin);
+    shapes[index].setAttribute('y2',y1 + k*Math.sqrt(Math.pow(event.offsetX-x1, 2) + Math.pow(event.offsetY-y1, 2)) * cos);
+    document.getElementById("SvgjsSvg1001").append(shapes[index]);
   }
 })
 draw.on('mouseup', event => {
+  mousedown = false;
   if (shape ==='polyline') {
     point.push([event.offsetX, event.offsetY]);
     krivaya = svgPolylines2(point, color, width, fill);
@@ -182,7 +204,6 @@ draw.on('mouseup', event => {
     }
     document.getElementById("SvgjsSvg1001").appendChild(krivaya);
     if (document.getElementById(tmpPolylineId)) document.getElementById(tmpPolylineId).removeAttribute("id");
-    mousedown = false;
   }
   else if (shape === 'rect'){
     option.width = event.offsetX - option.x;
@@ -212,13 +233,12 @@ draw.on('mouseup', event => {
     if(angle==='without') {
       option.x2 = event.offsetX;
       option.y2 = event.offsetY;
+      shapes[index].draw(event);
     }
     else if (angle==='90'){
-      console.log(sin);
-      option.x2 = option.x1 + Math.sqrt(Math.pow(event.offsetX-option.x1, 2) + Math.pow(event.offsetY-option.y1, 2)) * sin;
-      option.y2 = option.y1 + Math.sqrt(Math.pow(event.offsetY-option.y1, 2) + Math.pow(event.offsetY-option.y1, 2)) * cos;
+      option.x2 = shapes[index].x2.baseVal.value;
+      option.y2 = shapes[index].y2.baseVal.value;
     }
-    shapes[index].draw(event);
   }
   else if(shape!="hand" && shape!="delete"){
     shapes[index].draw(event);
